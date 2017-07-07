@@ -1,5 +1,7 @@
 #include "ChatListener.h"
 #include "application.h"
+#include "emattributevalue.h"
+#include "json/json.h"
 
 string GetPathForWebPage(const string& localPath)
 {
@@ -10,6 +12,30 @@ string GetPathForWebPage(const string& localPath)
 	string url = "file:///";
 	url += sPath.ToString();
 	return url;
+}
+
+void ChatListener::onReceiveCmdMessages(const EMMessageList &messages)
+{
+	HANDLE hObject[2];
+	hObject[0] = Utils::g_RosterDownloaded;
+	hObject[1] = Utils::g_GroupListDownloaded;
+	WaitForMultipleObjects(2, hObject, TRUE, INFINITE);
+
+	for (EMMessagePtr msg : messages) {
+
+	}
+}
+
+void ChatListener::onReceiveHasReadAcks(const EMMessageList &messages)
+{
+	HANDLE hObject[2];
+	hObject[0] = Utils::g_RosterDownloaded;
+	hObject[1] = Utils::g_GroupListDownloaded;
+	WaitForMultipleObjects(2, hObject, TRUE, INFINITE);
+
+	for (EMMessagePtr msg : messages) {
+
+	}
 }
 
 void ChatListener::onReceiveMessages(const EMMessageList &messages) 
@@ -99,8 +125,89 @@ void ChatListener::onTextMessage(const EMMessagePtr msg, const EMMessageBodyPtr 
 	stream << msg->to();
 	stream << "\",data : \"";
 	stream << Utils::URLEncode(body->text());
-	stream << "\",ext : \"\"}');";
-	Utils::CallJS(stream);
+    stream << "\"";
+    std::map<std::string, std::shared_ptr<easemob::EMAttributeValue> > ext = msg->ext();
+    if (ext.size() > 0)
+    {
+        stream << ",ext : {";
+        std::map<std::string, std::shared_ptr<EMAttributeValue> >::iterator it;
+        int len = ext.size();
+        int j = 0;
+        for (it = ext.begin(); it != ext.end(); it++)
+        {
+            stream << it->first;
+            stream << ":";
+            if (it->second->is<bool>())
+            {
+                stream << std::boolalpha << it->second->value<bool>();
+            }
+            else if (it->second->is<char>())
+            {
+                stream << it->second->value<char>();
+            }
+            else if (it->second->is<unsigned char>())
+            {
+                stream << it->second->value<unsigned char>();
+            }
+            else if (it->second->is<short>())
+            {
+                stream << it->second->value<short>();
+            }
+            else if (it->second->is<unsigned short>())
+            {
+                stream << it->second->value<unsigned short>();
+            }
+            else if (it->second->is<int32_t>())
+            {
+                stream << it->second->value<int32_t>();
+            }
+            else if (it->second->is<uint32_t>())
+            {
+                stream << it->second->value<uint32_t>();
+            }
+            else if (it->second->is<int64_t>())
+            {
+                stream << (uint32_t)it->second->value<int64_t>();
+            }
+            else if (it->second->is<float>())
+            {
+                stream << it->second->value<float>();
+            }
+            else if (it->second->is<double>())
+            {
+                stream << it->second->value<double>();
+            }
+            else if (it->second->is<std::string>())
+            {
+                stream << "\"";
+                stream << it->second->value<std::string>();
+                stream << "\"";
+            }
+            else if (it->second->is<std::vector<std::string>>())
+            {
+                auto sec = it->second->value<std::vector<std::string>>();
+                stream << "[";
+                for (auto i = sec.begin(); i != sec.end(); i++)
+                {
+                    stream << "\"";
+                    stream << *i;
+                    stream << "\"";
+                }
+                stream << "]";
+            }
+            else if (it->second->is<EMJsonString>())
+            {
+                stream << it->second->value<EMJsonString>();
+            }
+            if (++j < len)
+            {
+                stream << ",";
+            }
+        }
+        stream << "}";
+    }
+    stream << "}');";
+    Utils::CallJS(stream);
 }
 
 string ChatListener::getJSHead(const EMMessagePtr msg, string sChatType, string JSFuncName)
@@ -129,7 +236,88 @@ string ChatListener::getJSHead(const EMMessagePtr msg, string sChatType, string 
 	streamHead << msg->from();
 	streamHead << "\",to : \"";
 	streamHead << msg->to();
-	streamHead << "\",url : \"";
+    streamHead << "\"";
+    std::map<std::string, std::shared_ptr<easemob::EMAttributeValue> > ext = msg->ext();
+    if (ext.size() > 0)
+    {
+        streamHead << ",ext : {";
+        std::map<std::string, std::shared_ptr<EMAttributeValue> >::iterator it;
+        int len = ext.size();
+        int j = 0;
+        for (it = ext.begin(); it != ext.end(); it++)
+        {
+            streamHead << it->first;
+            streamHead << ":";
+            if (it->second->is<bool>())
+            {
+                streamHead << std::boolalpha << it->second->value<bool>();
+            }
+            else if (it->second->is<char>())
+            {
+                streamHead << it->second->value<char>();
+            }
+            else if (it->second->is<unsigned char>())
+            {
+                streamHead << it->second->value<unsigned char>();
+            }
+            else if (it->second->is<short>())
+            {
+                streamHead << it->second->value<short>();
+            }
+            else if (it->second->is<unsigned short>())
+            {
+                streamHead << it->second->value<unsigned short>();
+            }
+            else if (it->second->is<int32_t>())
+            {
+                streamHead << it->second->value<int32_t>();
+            }
+            else if (it->second->is<uint32_t>())
+            {
+                streamHead << it->second->value<uint32_t>();
+            }
+            else if (it->second->is<int64_t>())
+            {
+                streamHead << (uint32_t)it->second->value<int64_t>();
+            }
+            else if (it->second->is<float>())
+            {
+                streamHead << it->second->value<float>();
+            }
+            else if (it->second->is<double>())
+            {
+                streamHead << it->second->value<double>();
+            }
+            else if (it->second->is<std::string>())
+            {
+                streamHead << "\"";
+                streamHead << it->second->value<std::string>();
+                streamHead << "\"";
+            }
+            else if (it->second->is<std::vector<std::string>>())
+            {
+                auto sec = it->second->value<std::vector<std::string>>();
+                streamHead << "[";
+                for (auto i = sec.begin(); i != sec.end(); i++)
+                {
+                    streamHead << "\"";
+                    streamHead << *i;
+                    streamHead << "\"";
+                }
+                streamHead << "]";
+            }
+            else if (it->second->is<EMJsonString>())
+            {
+                streamHead << it->second->value<EMJsonString>();
+            }
+            if (++j < len)
+            {
+                streamHead << ",";
+            }
+        }
+        streamHead << "}";
+    }
+	streamHead << ",url : \"";
 	string sRet = streamHead.str();
 	streamHead.clear();
 	streamHead.str("");
@@ -233,8 +421,8 @@ void ChatListener::onImageMessage(const EMMessagePtr msg, const EMMessageBodyPtr
 void ChatListener::onVoiceMessage(const EMMessagePtr msg, const EMMessageBodyPtr _body, string sChatType)
 {
 	EMVoiceMessageBodyPtr body = std::dynamic_pointer_cast<EMVoiceMessageBody, EMMessageBody>(_body);
-
-	string strJSHead = getJSHead(msg, sChatType,"onAudioMessage");
+	 
+	string strJSHead = getJSHead(msg, sChatType, "onAudioMessage");
 	string strJSTail = getJSTail(_body, "audio");
 
 	CallJSWithoutFilePath(strJSHead, strJSTail);

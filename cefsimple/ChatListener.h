@@ -24,6 +24,8 @@ public:
 	}
 
 	virtual void onReceiveMessages(const EMMessageList &messages);
+	virtual void onReceiveCmdMessages(const EMMessageList &messages);
+	virtual void onReceiveHasReadAcks(const EMMessageList &messages);
 
 private:
 	EMCallbackObserverHandle m_coh;
