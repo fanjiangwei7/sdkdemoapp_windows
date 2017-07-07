@@ -334,7 +334,7 @@ if(OS_MACOSX)
   # -O3                             = Optimize for maximum speed plus a few extras
   set(CEF_COMPILER_FLAGS_RELEASE  "-O3")
   # -Wl,-search_paths_first         = Search for static or shared library versions in the same pass
-  # -Wl,-ObjC                       = Support creation of creation of ObjC static libraries 
+  # -Wl,-ObjC                       = Support creation of creation of ObjC static libraries
   # -Wl,-pie                        = Generate position-independent code suitable for executables only
   set(CEF_LINKER_FLAGS            "-Wl,-search_paths_first -Wl,-ObjC -Wl,-pie")
   # -Wl,-dead_strip                 = Strip dead code
@@ -381,7 +381,7 @@ endif()
 
 if(OS_WINDOWS)
   # Consumers who run into LNK4099 warnings can pass /Z7 instead (see issue #385).
-  set(CEF_DEBUG_INFO_FLAG "/ZI" CACHE STRING "Optional flag specifying specific /Z flag to use")
+  set(CEF_DEBUG_INFO_FLAG "/Zi" CACHE STRING "Optional flag specifying specific /Z flag to use")
 
   # Platform-specific compiler/linker flags.
   set(CEF_LIBTYPE                 STATIC)
@@ -393,11 +393,12 @@ if(OS_WINDOWS)
   # /wd"4100"             = Ignore "unreferenced formal parameter" warning
   # /wd"4127"             = Ignore "conditional expression is constant" warning
   # /wd"4244"             = Ignore "conversion possible loss of data" warning
+  # /wd"4481"             = Ignore "nonstandard extension used: override" warning
   # /wd"4512"             = Ignore "assignment operator could not be generated" warning
   # /wd"4701"             = Ignore "potentially uninitialized local variable" warning
   # /wd"4702"             = Ignore "unreachable code" warning
   # /wd"4996"             = Ignore "function or variable may be unsafe" warning
-  set(CEF_COMPILER_FLAGS          "/MP /Gy /W4 /wd\"4100\" /wd\"4127\" /wd\"4244\" /wd\"4512\" /wd\"4701\" /wd\"4702\" /wd\"4996\" ${CEF_DEBUG_INFO_FLAG}")
+  set(CEF_COMPILER_FLAGS          "/MP /Gy /GR- /W4 /WX /wd\"4100\" /wd\"4127\" /wd\"4244\" /wd\"4481\" /wd\"4512\" /wd\"4701\" /wd\"4702\" /wd\"4996\" ${CEF_DEBUG_INFO_FLAG}")
   # /MTd                  = Multithreaded debug runtime
   # /Od                   = Disable optimizations
   # /RTC1                 = Enable basic run-time checks
@@ -407,7 +408,7 @@ if(OS_WINDOWS)
   # /Ob2                  = Inline any suitable function
   # /GF                   = Enable string pooling
   # /D NDEBUG /D _NDEBUG  = Not a debug build
-  set(CEF_COMPILER_FLAGS_RELEASE  "/MD /Od /Ob0 /GF /D NDEBUG /D _NDEBUG")
+  set(CEF_COMPILER_FLAGS_RELEASE  "/MD /O2 /Ob2 /GF /D NDEBUG /D _NDEBUG")
   # /DEBUG                = Generate debug information
   set(CEF_LINKER_FLAGS_DEBUG      "/DEBUG")
   set(CEF_LINKER_FLAGS_RELEASE      "/DEBUG")
@@ -425,7 +426,7 @@ if(OS_WINDOWS)
                   -D_WIN32_WINNT=0x602 -DNOMINMAX -DWIN32_LEAN_AND_MEAN -D_HAS_EXCEPTIONS=0)
 
   # Standard libraries.
-  set(CEF_STANDARD_LIBS "comctl32.lib" "rpcrt4.lib" "shlwapi.lib")
+  set(CEF_STANDARD_LIBS "comctl32.lib" "rpcrt4.lib" "shlwapi.lib" "ws2_32.lib")
 
   # CEF directory paths.
   set(CEF_RESOURCE_DIR        "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
@@ -442,7 +443,7 @@ if(OS_WINDOWS)
     d3dcompiler_43.dll
     d3dcompiler_47.dll
     libcef.dll
-	libcurl.dll
+    libcurl.dll
     libEGL.dll
     libGLESv2.dll
     natives_blob.bin
